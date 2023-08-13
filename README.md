@@ -9,18 +9,88 @@ Feel free to use the interpreter of your choice.
 brew install guile
 ```
 
-## Basics
+## The Elements of Programming
 
-### Arithmetic
+- **Primitive expressions**, which represent the simplest entities the language is concerned with.
+- **Means of combination**, by which compound elements are built from simpler ones.
+- **Means of abstraction**, by which compound elements can be named and manipulated as units.
 
-```sh
-guile ch1/arithmetic.scm
+### Expressions
+
+```scheme
+486
+;; 486
+
+(+ 137 349)
+;; 486
+
+(- 1000 334)
+;; 666
+
+(* 5 99)
+;; 495
+
+(/ 10 5)
+;; 2
+
+(+ 2.7 10)
+;; 12.7
+``````
+
+Expressions such as these, formed by delimiting a list of expressions
+within parentheses in order to denote procedure application, are called
+_combinations_. The leftmost element in the list is called the operator, and
+the other elements are called operands. The value of a combination is
+obtained by applying the procedure specified by the operator to the arguments that are the values of the operands.
+The convention of placing the operator to the le of the operands
+is known as prefix notation, and it may be somewhat confusing at first
+because it departs significantly from the customary mathematical convention. Prefix notation has several advantages, however. One of them
+is that it can accommodate procedures that may take an arbitrary number of arguments, as in the following examples:
+
+```scheme
+(+ 21 35 12 7)
+;; 75
+
+(* 25 4 12)
+;; 1200
+
+(+ (* 3 5) (- 10 6))
+;; 19
+
+(+ (* 3 (+ (* 2 4) (+ 3 5))) (+ (- 10 7) 6))
+;; 57
+
+;; Pretty printing
+(+ (* 3
+
+      (+ (* 2 4)
+
+         (+ 3 5)))
+
+   (+ (- 10 7)
+
+      6))
 ```
 
-### Names
 
-```sh
-guile ch1/names.scm
+### Naming
+
+```scheme
+(define size 2)
+size
+;; 2
+
+(* 5 size)
+;; 10
+
+(define pi 3.14159)
+(define radius 10)
+(* pi (* radius radius))
+;; 314.159
+
+(define circumference (* 2 pi radius))
+circumference
+;; 62.8318
 ```
 
 ### Functions
