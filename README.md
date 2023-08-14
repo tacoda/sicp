@@ -42,7 +42,7 @@ within parentheses in order to denote procedure application, are called
 _combinations_. The leftmost element in the list is called the operator, and
 the other elements are called operands. The value of a combination is
 obtained by applying the procedure specified by the operator to the arguments that are the values of the operands.
-The convention of placing the operator to the le of the operands
+The convention of placing the operator to the left of the operands
 is known as prefix notation, and it may be somewhat confusing at first
 because it departs significantly from the customary mathematical convention. Prefix notation has several advantages, however. One of them
 is that it can accommodate procedures that may take an arbitrary number of arguments, as in the following examples:
@@ -93,13 +93,42 @@ circumference
 ;; 62.8318
 ```
 
+### Evaluating Combinations
+
+1. Evaluate the subexpressions of the combination.
+2. Apply the procedure that is the value of the lemost subexpression (the operator) to the arguments that are the values of the
+other subexpressions (the operands).
+
+### Compound Procedures
+
 ### Functions
 
-```sh
-guile ch1/functions.scm
+```scheme
+(define (square x) (* x x))
+
+(square 21)
+;; 441
+
+(square (+ 2 5))
+;; 49
+
+(square (square 3))
+;; 81
+
+(define (sum-of-squares x y)
+  (+ (square x) (square y)))
+
+(sum-of-squares 3 4)
+;; 25
+
+(define (f a)
+  (sum-of-squares (+ a 1) (* a 2)))
+
+(f 5)
+;; 136
 ```
 
-**Evaluation by Substitution**
+### The Substitution Model for Procedure Application
 
 ```scheme
 ;; Eager
@@ -119,11 +148,61 @@ guile ch1/functions.scm
                     136
 ```
 
-### Recursion and Iteration
+### Conditional Expressions and Predicates
 
-```sh
-guile ch2/recur-iter.scm
+```scheme
+(define (abs x)
+  (cond ((> x 0) x)
+        ((= x 0) 0)
+        ((< x 0) (- x))))
+
+(define (abs x)
+  (cond ((< x 0) (- x))
+        (else x)))
+
+(define (abs x)
+  (if (< x 0)
+      (- x)
+      x))
+
+(and (> x 5) (< x 10))
+
+(define (>= x y)
+  (or (> x y) (= x y)))
+
+(define (>= x y)
+  (not (< x y)))
 ```
+
+### Example: Square Roots by Newton's Method
+
+```scheme
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x)
+                 x)))
+
+(define (improve guess x)
+  (average guess (/ x guess)))
+
+(define (average x y)
+  (/ (+ x y) 2))
+
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.001))
+
+(define (sqrt x)
+  (sqrt-iter 1.0 x))
+
+
+;: (sqrt 9)
+;: (sqrt (+ 100 37))
+;: (sqrt (+ (sqrt 2) (sqrt 3)))
+;: (square (sqrt 1000))
+```
+
+### Recursion and Iteration
 
 ```scheme
 ;; Recursion calls itself
@@ -149,3 +228,11 @@ guile ch2/recur-iter.scm
 ```sh
 guile ch2/gcd-primes.scm
 ```
+
+---
+
+**TODO**
+
+- Structure and Interpretation of Computer Programs
+- Scheme Section of Guile Reference
+- Guile Section of Guile Reference
