@@ -202,11 +202,110 @@ other subexpressions (the operands).
 ;: (square (sqrt 1000))
 ```
 
-### Recursion and Iteration
+**Standard Definitions**
+
+```scheme
+(define (sqrt x)
+  (sqrt-iter 1.0 x))
+(define (sqrt-iter guess x)
+  (if (good-enough? guess x)
+      guess
+      (sqrt-iter (improve guess x)
+                 x)))
+(define (good-enough? guess x)
+  (< (abs (- (square guess) x)) 0.001))
+(define (improve guess x)
+  (average guess (/ x guess)))
+```
+
+**Internal Definitions**
+
+Block structure or lexical scoping
+
+```scheme
+(define (sqrt x)
+  (define (good-enough? guess x)
+    (< (abs (- (square guess) x)) 0.001))
+  (define (improve guess x)
+    (average guess (/ x guess)))
+  (define (sqrt-iter guess x)
+    (if (good-enough? guess x)
+        guess
+        (sqrt-iter (improve guess x) x)))
+ (sqrt-iter 1.0 x))
+```
+
+## Procedures and the Processes They Generate
+
+### Linear Recursion and Iteration
+
+```scheme
+;; Linear Recursive Process
+(define (factorial n)
+  (if (= n 1)
+      1
+      (* n (factorial (- n 1)))))
+
+(factorial 6)
+(* 6 (factorial 5))
+(* 6 (* 5 (factorial 4)))
+(* 6 (* 5 (* 4 (factorial 3))))
+(* 6 (* 5 (* 4 (* 3 (factorial 2)))))
+(* 6 (* 5 (* 4 (* 3 (* 2 (factorial 1))))))
+(* 6 (* 5 (* 4 (* 3 (* 2 1)))))
+(* 6 (* 5 (* 4 (* 3 2))))
+(* 6 (* 5 (* 4 6)))
+(* 6 (* 5 24))
+(* 6 120)
+720 
+
+
+;; Linear Iterative Process
+(define (factorial n)
+  (fact-iter 1 1 n))
+(define (fact-iter product counter max-count)
+  (if (> counter max-count)
+      product
+      (fact-iter (* counter product)
+                 (+ counter 1)
+                 max-count)))
+
+(factorial 6)
+(fact-iter 1 1 6)
+(fact-iter 1 2 6)
+(fact-iter 2 3 6)
+(fact-iter 6 4 6)
+(fact-iter 24 5 6)
+(fact-iter 120 6 6)
+(fact-iter 720 7 6)
+720
+
+;; Scoped
+(define (factorial n)
+  (define (iter product counter)
+    (if (> counter n)
+        product
+        (iter (* counter product)
+              (+ counter 1))))
+  (iter 1 1))
+```
+
+In contrasting iteration and recursion, we must be careful not to
+confuse the notion of a recursive process with the notion of a recursive
+procedure. When we describe a procedure as recursive, we are referring
+to the syntactic fact that the procedure definition refers (either directly
+or indirectly) to the procedure itself. But when we describe a process
+as following a pattern that is, say, linearly recursive, we are speaking
+about how the process evolves, not about the syntax of how a procedure
+is written. It may seem disturbing that we refer to a recursive procedure
+such as fact-iter as generating an iterative process. However, the process really is iterative: Its state is captured completely by its three state
+variables, and an interpreter need keep track of only three variables in
+order to execute the process.
+
+### Tree Recursion
 
 ```scheme
 ;; Recursion calls itself
-
 (define (fib n)
   (cond ((= n 0) 0)
         ((= n 1) 1)
@@ -221,6 +320,32 @@ other subexpressions (the operands).
   (if (= count 0)
       b
       (fib-iter (+ a b) a (- count 1))))
+```
+
+### Example: Counting Change
+
+```scheme
+(define (count-change amount) (cc amount 5))
+
+(define (cc amount kinds-of-coins)
+  (cond ((= amount 0) 1)
+        ((or (< amount 0) (= kinds-of-coins 0)) 0)
+        (else (+ (cc amount
+                     (- kinds-of-coins 1))
+              (cc (- amount
+                     (first-denomination
+                      kinds-of-coins))
+                  kinds-of-coins)))))
+
+(define (first-denomination kinds-of-coins)
+  (cond ((= kinds-of-coins 1) 1)
+        ((= kinds-of-coins 2) 5)
+        ((= kinds-of-coins 3) 10)
+        ((= kinds-of-coins 4) 25)
+        ((= kinds-of-coins 5) 50)))
+
+(count-change 100)
+;; 292
 ```
 
 ### GCD and Primes
